@@ -8,8 +8,32 @@ class DropBoxController{
         this.progressBarEl = this.snackModalEl.querySelector('.mc-progress-bar-fg');
         this.namefileEl = this.snackModalEl.querySelector('.filename');
         this.timeleftEl = this.snackModalEl.querySelector('.timeleft');
-
+        
+        //this.conectFirabase();
         this.initEvents();
+
+    }
+
+    conectFirabase(){
+
+        // Import the functions you need from the SDKs you need
+        //import { initializeApp } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-app.js";
+       // import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCdgDsS5J6R_HMD7JpqZZ-mJmsBS0hYx-I",
+            authDomain: "dropbox-clone-fab8b.firebaseapp.com",
+            databaseURL: "https://dropbox-clone-fab8b-default-rtdb.firebaseio.com",
+            projectId: "dropbox-clone-fab8b",
+            storageBucket: "dropbox-clone-fab8b.appspot.com",
+            messagingSenderId: "82111560173",
+            appId: "1:82111560173:web:a525335de6d16697114fe4",
+            measurementId: "G-YKBZ5W9GZF"
+          };
+        
+          // Initialize Firebase
+         // const app = initializeApp(firebaseConfig);
+         // const analytics = getAnalytics(app);
 
     }
 
