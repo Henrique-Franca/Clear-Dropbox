@@ -372,12 +372,18 @@ class DropBoxController{
 
     getFileView(file,key) {
         let li = document.createElement('li')
+
          li.dataset.key = key;
+
          li.innerHTML = `
          ${this.getFileIconView(file)}
          <div class="name text-center">${file.originalFilename}</div>
          `
+
+        this.initEventsLi(li);
+
         return li;
+
         }
 
     readFiles(){
@@ -395,6 +401,16 @@ class DropBoxController{
                 
 
             });
+
+        });
+
+    }
+
+    initEventsLi(li){
+
+        li.addEventListener('click', e =>{
+
+            li.classList.toggle('selected');
 
         });
 
