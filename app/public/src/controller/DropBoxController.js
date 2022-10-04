@@ -3,6 +3,8 @@ class DropBoxController{
 
     constructor(){
 
+        this.currentFolder = ['hcode'];
+
         this.onselectionchange = new Event('selectionchange');
 
         this.btnSendFileEl = document.querySelector('#btn-send-file');
@@ -71,6 +73,22 @@ class DropBoxController{
     }
 
     initEvents(){
+
+        this.btnNewFolder.addEventListener('click', e => {
+
+            let name = prompt('Nome da nova pasta:');
+
+            if (name) {
+
+                this.getFirebaseRef().push().set({
+                    name,
+                    type: 'folder',
+                    path: this.currentFolder.join('/')
+                });
+
+            }
+
+        });
 
         this.btnDelete.addEventListener('click', e=>{
 
@@ -292,7 +310,8 @@ class DropBoxController{
 
     getFileIconView(file){
 
-        switch (file.mimetype) {
+
+        switch (file.type) {
  
             case 'folder':
                 return `
@@ -305,6 +324,22 @@ class DropBoxController{
                 </svg>
                 `;
                 break;
+
+        }
+
+        switch (file.mimetype) {
+ 
+           /* case 'folder':
+                return `
+                <svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
+                    <title>content-folder-large</title>
+                         <g fill="none" fill-rule="evenodd">
+                     <path d="M77.955 53h50.04A3.002 3.002 0 0 1 131 56.007v58.988a4.008 4.008 0 0 1-4.003 4.005H39.003A4.002 4.002 0 0 1 35 114.995V45.99c0-2.206 1.79-3.99 3.997-3.99h26.002c1.666 0 3.667 1.166 4.49 2.605l3.341 5.848s1.281 2.544 5.12 2.544l.005.003z" fill="#71B9F4"></path>
+                     <path d="M77.955 52h50.04A3.002 3.002 0 0 1 131 55.007v58.988a4.008 4.008 0 0 1-4.003 4.005H39.003A4.002 4.002 0 0 1 35 113.995V44.99c0-2.206 1.79-3.99 3.997-3.99h26.002c1.666 0 3.667 1.166 4.49 2.605l3.341 5.848s1.281 2.544 5.12 2.544l.005.003z" fill="#92CEFF"></path>
+                    </g>
+                </svg>
+                `;
+                break;*/
  
             case 'audio/ogg':
             case 'audio/mp3':
@@ -480,21 +515,50 @@ class DropBoxController{
     }
 
     getFileView(file,key) {
-        let li = document.createElement('li')
+        
+        
+        
+        let li = document.createElement('li');
+        let li1 = document.createElement('li');
 
-         li.dataset.key = key;
-         li.dataset.file = JSON.stringify(file);
 
-         li.innerHTML = `
-         ${this.getFileIconView(file)}
-         <div class="name text-center">${file.originalFilename}</div>
-         `
+        if (file.type){
 
-        this.initEventsLi(li);
+            li1.dataset.key = key;
+            li1.dataset.file = JSON.stringify(file);
 
-        return li;
+            li1.innerHTML = `
+            ${this.getFileIconView(file)}
+            <div class="name text-center">${file.name}</div>
+            `
+            this.initEventsLi(li1);
+
+            return li1;
+
+        }else{
+
+            li.dataset.key = key;
+            li.dataset.file = JSON.stringify(file);
+   
+            li.innerHTML = `
+            ${this.getFileIconView(file)}
+            <div class="name text-center">${file.originalFilename}</div>
+            `
+           this.initEventsLi(li);
+
+           return li;
 
         }
+
+
+
+        
+
+       
+
+        
+
+    }
 
     readFiles(){
 
