@@ -173,7 +173,12 @@ class DropBoxController{
 
                 responses.forEach(resp =>{
 
-                    this.getFirebaseRef().push().set(resp.files['input-file']);
+                    this.getFirebaseRef().push().set({
+                        name: resp.name,
+                        type: resp.contentType,
+                        path: resp.downloadURLs[0],
+                        size: resp.size
+                    });
 
                 });
 
@@ -256,17 +261,38 @@ class DropBoxController{
 
         [...files].forEach(file=>{
 
-            let formData = new FormData();
+            promises.push(new Promise((resolve, reject)=>{
+                let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
 
-            formData.append('input-file', file);
+                let task = fileRef.put(file);
+    
+                task.on('state_changed', snapshot=>{
+    
+                    this.uploadProgress({
+                        loaded: snapshot.bytesTransferred,
+                        total: snapshot.totalBytes
+                    }, file);
+                    console.log('progress',snapshot)
+    
+                }, error=>{
+    
+                    console.error(error);
+                    reject(error);
+    
+                }, () =>{
+    
+                    fileRef.getMetadata().then(metadata=>{
 
-            promises.push(this.ajax('/upload','POST', formData, ()=>{
+                        resolve(metadata);
 
-                this.uploadProgress(event, file);   
+                    }).catch(err=>{
 
-            }, ()=>{
+                        reject(err);
 
-                this.startUploadTime = Date.now();
+                    });
+    
+                });
+
 
             }));
 
@@ -316,7 +342,7 @@ class DropBoxController{
 
 
         switch (file.type) {
- 
+
             case 'folder':
                 return `
                 <svg width="160" height="160" viewBox="0 0 160 160" class="mc-icon-template-content tile__preview tile__preview--icon">
@@ -328,10 +354,6 @@ class DropBoxController{
                 </svg>
                 `;
                 break;
-
-        }
-
-        switch (file.mimetype) {
  
             case 'audio/ogg':
             case 'audio/mp3':
@@ -513,34 +535,18 @@ class DropBoxController{
         let li = document.createElement('li');
         let li1 = document.createElement('li');
 
-
-        if (file.type){
-
-            li1.dataset.key = key;
-            li1.dataset.file = JSON.stringify(file);
-
-            li1.innerHTML = `
-            ${this.getFileIconView(file)}
-            <div class="name text-center">${file.name}</div>
-            `
-            this.initEventsLi(li1);
-
-            return li1;
-
-        }else{
-
             li.dataset.key = key;
             li.dataset.file = JSON.stringify(file);
    
             li.innerHTML = `
             ${this.getFileIconView(file)}
-            <div class="name text-center">${file.originalFilename}</div>
+            <div class="name text-center">${file.name}</div>
             `
            this.initEventsLi(li);
 
            return li;
 
-        }
+        
 
 
     }
@@ -630,26 +636,26 @@ class DropBoxController{
 
     }
 
-    initEventsLi(li){
+    initEventsLi(li) {
 
-        li.addEventListener('dblclick', e=>{
+        li.addEventListener('dblclick', e => {
 
             let file = JSON.parse(li.dataset.file);
-
-            switch(file.type){
-
-                case 'folder':
-                    this.currentFolder.push(file.name);
-                    this.openFolder();
+      
+            switch (file.type) {
+      
+              case 'folder':
+                this.currentFolder.push(file.name);
+      
+                this.openFolder();
+      
                 break;
-
-                default:
-
-                    window.open('/file?path=' + file.path);
-
+      
+              default:
+                window.open(file.path);
             }
-
-        });
+      
+          });
 
         li.addEventListener('click', e =>{
 
